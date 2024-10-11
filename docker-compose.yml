@@ -1,0 +1,16 @@
+services:
+  webapp:
+    image: kevinrm/my-django-python-service
+    volumes:
+      - "/var/lib/docker/containers:/var/lib/docker/containers:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro"
+      - "/proc:/hostfs/proc:ro"
+      - "/:/hostfs:ro"
+    ports:
+      - 8000:8000
+    environments:
+      - SERVICE_NAME: "My Django Python Service"
+      - SERVICE_TOKEN: "supersecrettoken"
+      - SERVER_URL: "http://184.169.41.209:8200"
+      - SERVER_ENVIRONMENT: 'development'

@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      containers:
+        - name: webapp
+          image: kevinrm/my-django-python-service
+          ports:
+            - containerPort: 8000
+          env:
+            - name: SERVICE_NAME
+              value: "My Django Python Service"
+            - name: SERVICE_TOKEN
+              value: "supersecrettoken"
+            - name: SERVER_URL
+              value: "http://184.169.41.209:8200"
+            - name: SERVER_ENVIRONMENT
+              value: "production"
+          volumeMounts:
+            - name: docker-containers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: docker-sock
+              mountPath: /var/run/docker.sock
+              readOnly: true
+            - name: cgroup
+              mountPath: /hostfs/sys/fs/cgroup
+              readOnly: true
+            - name: proc
+              mountPath: /hostfs/proc
+              readOnly: true
+            - name: rootfs
+              mountPath: /hostfs
+              readOnly: true
+      volumes:
+        - name: docker-containers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock
+        - name: cgroup
+          hostPath:
+            path: /sys/fs/cgroup
+        - name: proc
+          hostPath:
+            path: /proc
+        - name: rootfs
+          hostPath:
+            path: /
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp-service
+spec:
+  selector:
+    app: webapp
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: NodePort
